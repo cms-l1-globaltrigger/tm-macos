@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-11
+    runs-on: macos-12
     env:
       UTM_VERSION: 0.12.0
       MACOSX_DEPLOYMENT_TARGET: 10.15
