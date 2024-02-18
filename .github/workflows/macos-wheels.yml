@@ -18,7 +18,7 @@ jobs:
     - name: Install build dependecies
       run: brew install boost xerces-c swig
     - name: Set custom MACOSX_DEPLOYMENT_TARGET (workaround)
-      if: matrix.python-version == "3.7" || matrix.python-version == "3.8"
+      if: matrix.python-version == '3.7' || matrix.python-version == '3.8'
       run: echo "MACOSX_DEPLOYMENT_TARGET=11.7" >> $GITHUB_ENV
     - name: Build utm
       run: bash scripts/build_utm.sh
