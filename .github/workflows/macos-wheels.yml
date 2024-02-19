@@ -8,18 +8,18 @@ jobs:
     runs-on: macos-12
     env:
       UTM_VERSION: 0.12.0
-      MACOSX_DEPLOYMENT_TARGET: 10.15
+      MACOSX_DEPLOYMENT_TARGET: 11.7
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
     steps:
     - uses: actions/checkout@v3
+    - name: Set custom MACOSX_DEPLOYMENT_TARGET
+      if: matrix.python-version == '3.11' || matrix.python-version == '3.12'
+      run: echo "MACOSX_DEPLOYMENT_TARGET=10.9" >> $GITHUB_ENV
     - name: Install build dependecies
-      run: brew install boost xerces-c swig
-    - name: Set custom MACOSX_DEPLOYMENT_TARGET (workaround)
-      if: matrix.python-version == '3.7' || matrix.python-version == '3.8'
-      run: echo "MACOSX_DEPLOYMENT_TARGET=11.7" >> $GITHUB_ENV
+      run: brew install boost@1.84 xerces-c@3.2 swig@4.2
     - name: Build utm
       run: bash scripts/build_utm.sh
     - name: Set up Python ${{ matrix.python-version }}
