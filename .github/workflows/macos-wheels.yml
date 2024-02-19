@@ -19,7 +19,7 @@ jobs:
       if: matrix.python-version == '3.11' || matrix.python-version == '3.12'
       run: echo "MACOSX_DEPLOYMENT_TARGET=10.9" >> $GITHUB_ENV
     - name: Install build dependecies
-      run: brew install boost@1.84 xerces-c@3.2 swig@4.2
+      run: brew install boost@1.84 xerces-c swig@4.2
     - name: Build utm
       run: bash scripts/build_utm.sh
     - name: Set up Python ${{ matrix.python-version }}
