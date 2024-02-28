@@ -1,18 +1,17 @@
+#!/bin/bash
+
 set -e
 
-if [ -z $UTM_VERSION ]
-then
-  echo "missing variable UTM_VERSION"
-  exit 1
-fi
+: ${UTM_VERSION:=0.12.0}
+: ${UTM_BASE:=$(pwd)/dist/utm}
+: ${BOOST_BASE:=$(pwd)/dist/boost}
+: ${XERCES_C_BASE:=$(pwd)/dist/xerces-c}
 
-UTM_TAG=utm_$UTM_VERSION
-
-echo MACOSX_DEPLOYMENT_TARGET=$MACOSX_DEPLOYMENT_TARGET
-
-git clone https://gitlab.cern.ch/cms-l1t-utm/utm.git -b $UTM_TAG
-cd utm
-
+mkdir -p build
+cd build
+curl -OL https://gitlab.cern.ch/cms-l1t-utm/utm/-/archive/utm_${UTM_VERSION}/utm-utm_${UTM_VERSION}.tar.gz
+tar xzf utm-utm_${UTM_VERSION}.tar.gz
+cd utm-utm_${UTM_VERSION}
 ./configure
-make all CPPFLAGS="-DNDEBUG -DSWIG" -j4
-cd ..
+make all -j4 CPPFLAGS='-DNDEBUG -DSWIG' BOOST_BASE=${BOOST_BASE} XERCES_C_BASE=${XERCES_C_BASE}
+make install PREFIX=${UTM_BASE}

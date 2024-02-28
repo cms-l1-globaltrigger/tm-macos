@@ -4,35 +4,29 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: macos-12
+  build_wheels:
+    name: Build wheels
+    runs-on: macos-11
     env:
-      UTM_VERSION: 0.12.0
-      MACOSX_DEPLOYMENT_TARGET: 11.7
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
+      MACOSX_DEPLOYMENT_TARGET: '10.9'
+      UTM_VERSION: '0.12.0'
+      BOOST_VERSION: '1.84.0'
+      XERCES_C_VERSION: '3.2.5'
+      CIBW_BEFORE_ALL: |
+        bash scripts/build_boost.sh
+        bash scripts/build_xerces_c.sh
+        bash scripts/build_utm.sh
+      CIBW_REPAIR_WHEEL_COMMAND_MACOS: >
+        DYLD_LIBRARY_PATH=$REPAIR_LIBRARY_PATH delocate-listdeps {wheel} &&
+        DYLD_LIBRARY_PATH=$REPAIR_LIBRARY_PATH delocate-wheel --require-archs {delocate_archs} -w {dest_dir} {wheel}
     steps:
-    - uses: actions/checkout@v3
-    - name: Install build dependecies
-      run: brew install boost@1.84 xerces-c swig@4.2
-    - name: Build utm
-      run: bash scripts/build_utm.sh
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4.5.0
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependecies
-      run: |
-        python -m pip install -U pip
-        python -m pip install setuptools wheel build delocate
-    - name: Build wheels
-      run: bash scripts/build_wheels.sh
-    - name: Delocate wheels
-      run: bash scripts/delocate_wheels.sh
-    - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v3.1.2
-      with:
-        name: wheels-python-${{ matrix.python-version }}
-        path: fixed_wheels
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v3
+      - name: Install cibuildwheel
+        run: python -m pip install cibuildwheel==2.16.5
+      - name: Build wheels
+        run: bash scripts/build_wheels.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cibw-wheels-macos
+          path: ./wheelhouse/*.whl
